@@ -11,8 +11,10 @@
     <link
       href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
       rel="stylesheet"
-      crossorigin="anonymous"
     />
+
+    <!-- 引入Google字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
     <script>
       tailwind.config = {
@@ -27,6 +29,8 @@
             },
             fontFamily: {
               sans: ["Inter", "system-ui", "Segoe UI", "Roboto", "sans-serif"],
+              // 添加专为标题设计的字体
+              heading: ["'Noto Sans SC'", "sans-serif"]
             },
           },
         },
@@ -59,6 +63,14 @@
         .text-shadow-lg {
           text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
         }
+        /* 问候语专用样式 */
+        .greeting-style {
+          @apply font-heading font-bold tracking-tight leading-tight;
+        }
+        /* Bookweb标题专用样式 */
+        .bookweb-title {
+          @apply font-heading font-semibold tracking-wide leading-relaxed;
+        }
       }
     </style>
 
@@ -68,7 +80,6 @@
         padding: 0;
         overflow-x: hidden;
         min-height: 100vh;
-        /* 平滑字体渲染 */
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
@@ -87,7 +98,6 @@
         z-index: 10;
       }
 
-      /* 输入框文字优化 */
       input[type="text"] {
         color: rgba(255, 255, 255, 0.9);
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -97,7 +107,6 @@
         color: rgba(255, 255, 255, 0.6);
       }
 
-      /* 适配移动端设备图标大小 */
       @media (max-width: 640px) {
         .device-icon img {
           width: 24px !important;
@@ -109,7 +118,6 @@
         }
       }
 
-      /* 预加载图片 */
       .preload-images {
         display: none;
       }
@@ -162,22 +170,12 @@
               class="flex-grow px-4 py-3 rounded-l-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="百度搜索"
             />
-            <!-- <button
-              type="submit"
-              class="bg-primary px-4 py-3 rounded-r-lg hover:bg-primary/80 transition-colors"
-              aria-label="搜索"
-            >
-              <i class="fa fa-search" aria-hidden="true"></i>
-            </button> -->
             <button
               type="submit"
               class="bg-primary px-4 py-3 rounded-r-lg hover:bg-primary/80 transition-colors"
               aria-label="搜索"
             >
-              <!-- 确保Font Awesome正确加载，同时添加备选方案 -->
-              <!-- <i class="fa fa-search text-white" aria-hidden="true"></i> -->
-              <!-- 可选：添加文本作为图标无法显示时的备选 -->
-              <span class="sr-only sm:not-sr-only">搜索</span>
+              <i class="fa fa-search" aria-hidden="true"></i>
             </button>
           </form>
         </div>
@@ -188,7 +186,7 @@
         >
           <h1
             id="greeting"
-            class="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 text-gradient text-shadow-lg"
+            class="text-3xl sm:text-4xl md:text-6xl mb-4 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 text-gradient text-shadow-lg greeting-style"
           >
             欢迎回家
           </h1>
@@ -203,7 +201,7 @@
             class="bg-white/10 backdrop-blur rounded-2xl px-4 sm:px-8 py-4 sm:py-6 mb-8 sm:mb-12 border border-white/20 shadow-lg w-full max-w-md"
           >
             <span
-              class="text-xl sm:text-2xl md:text-3xl font-semibold bg-gradient-to-r from-cyan-300 to-blue-400 text-gradient block text-shadow"
+              class="text-xl sm:text-2xl md:text-3xl bg-gradient-to-r from-cyan-300 to-blue-400 text-gradient block text-shadow bookweb-title"
             >
               前往Bookweb页面
               <div>
