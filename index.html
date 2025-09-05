@@ -11,6 +11,7 @@
     <link
       href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
       rel="stylesheet"
+      crossorigin="anonymous"
     />
 
     <script>
@@ -161,12 +162,22 @@
               class="flex-grow px-4 py-3 rounded-l-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
               aria-label="百度搜索"
             />
-            <button
+            <!-- <button
               type="submit"
               class="bg-primary px-4 py-3 rounded-r-lg hover:bg-primary/80 transition-colors"
               aria-label="搜索"
             >
               <i class="fa fa-search" aria-hidden="true"></i>
+            </button> -->
+            <button
+              type="submit"
+              class="bg-primary px-4 py-3 rounded-r-lg hover:bg-primary/80 transition-colors"
+              aria-label="搜索"
+            >
+              <!-- 确保Font Awesome正确加载，同时添加备选方案 -->
+              <!-- <i class="fa fa-search text-white" aria-hidden="true"></i> -->
+              <!-- 可选：添加文本作为图标无法显示时的备选 -->
+              <span class="sr-only sm:not-sr-only">搜索</span>
             </button>
           </form>
         </div>
