@@ -55,6 +55,11 @@ function initParticles() {
 
   const ctx = DOM.canvas.getContext("2d");
   let particlesArray = [];
+  let mouse = {
+    x: null,
+    y: null,
+    radius: 100 // 鼠标影响范围半径
+  };
 
   // 设置canvas尺寸
   function resizeCanvas() {
@@ -69,10 +74,18 @@ function initParticles() {
     constructor() {
       this.x = Math.random() * DOM.canvas.width;
       this.y = Math.random() * DOM.canvas.height;
-      this.size = Math.random() * 3 + 1;
-      this.speedX = (Math.random() - 0.5) * 0.5;
-      this.speedY = (Math.random() - 0.5) * 0.5;
-      this.color = `rgba(100, 200, 255, ${Math.random() * 0.5 + 0.2})`;
+      this.size = Math.random() * 2 + 1; // 稍微减小粒子大小，更精致
+      this.speedX = (Math.random() - 0.5) * 0.3; // 稍微减慢速度，更优雅
+      this.speedY = (Math.random() - 0.5) * 0.3;
+      
+      // 根据位置设置渐变的颜色，与背景更融合
+      const colors = [
+        `rgba(59, 130, 246, ${Math.random() * 0.6 + 0.2})`, // 蓝色
+        `rgba(139, 92, 246, ${Math.random() * 0.5 + 0.2})`, // 紫色
+        `rgba(16, 185, 129, ${Math.random() * 0.5 + 0.2})`, // 绿色
+        `rgba(245, 158, 11, ${Math.random() * 0.4 + 0.2})`  // 黄色
+      ];
+      this.color = colors[Math.floor(Math.random() * colors.length)];
     }
 
     update() {
@@ -107,6 +120,18 @@ function initParticles() {
     }
   }
 
+  // 鼠标移动事件处理
+  document.addEventListener("mousemove", (event) => {
+    mouse.x = event.x;
+    mouse.y = event.y;
+  });
+
+  // 鼠标离开画布事件处理
+  document.addEventListener("mouseout", () => {
+    mouse.x = null;
+    mouse.y = null;
+  });
+
   // 动画循环
   function animateParticles() {
     ctx.clearRect(0, 0, DOM.canvas.width, DOM.canvas.height);
@@ -114,6 +139,26 @@ function initParticles() {
     // 更新和绘制粒子
     for (let i = 0; i < particlesArray.length; i++) {
       particlesArray[i].update();
+      // 鼠标交互效果
+      if (mouse.x !== null && mouse.y !== null) {
+        const dx = particlesArray[i].x - mouse.x;
+        const dy = particlesArray[i].y - mouse.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // 如果粒子在鼠标范围内，添加排斥效果
+        if (distance < mouse.radius) {
+          const force = (mouse.radius - distance) / mouse.radius;
+          const angle = Math.atan2(dy, dx);
+          particlesArray[i].x += Math.cos(angle) * force * 2;
+          particlesArray[i].y += Math.sin(angle) * force * 2;
+          
+          // 鼠标范围内的粒子稍微变大并改变透明度
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255, 255, 255, ${(mouse.radius - distance) / (mouse.radius * 5)})`;
+          ctx.arc(particlesArray[i].x, particlesArray[i].y, particlesArray[i].size * 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
       particlesArray[i].draw();
     }
 
