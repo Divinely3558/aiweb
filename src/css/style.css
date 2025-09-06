@@ -1,0 +1,85 @@
+@layer utilities {
+  .content-auto {
+    content-visibility: auto;
+  }
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .backdrop-blur {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .device-card {
+    @apply flex flex-col items-center p-2 sm:p-3 transition-all duration-300 hover:-translate-y-1 hover:scale-105;
+  }
+  .device-icon-container {
+    @apply w-12 sm:w-16 h-12 sm:h-16 rounded-full flex items-center justify-center mb-2 shadow-lg border-2 border-white/20 transition-transform duration-300 hover:scale-110;
+  }
+
+  .device-icon-container img {
+    @apply transition-transform duration-300 hover:scale-125;
+  }
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  .text-shadow-lg {
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  }
+  /* 问候语专用样式 */
+  .greeting-style {
+    @apply font-heading font-bold tracking-tight leading-tight;
+  }
+  /* Bookweb标题专用样式 */
+  .bookweb-title {
+    @apply font-heading font-semibold tracking-wide leading-relaxed;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 10;
+}
+
+input[type="text"] {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+input[type="text"]::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 640px) {
+  .device-icon img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .device-icon-container {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+.preload-images {
+  display: none;
+}

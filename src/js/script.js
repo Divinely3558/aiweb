@@ -1,0 +1,145 @@
+// 封装DOM元素获取
+const DOM = {
+  greeting: document.getElementById("greeting"),
+  currentYear: document.getElementById("current-year"),
+  lastUpdate: document.getElementById("last-update"),
+  goToBookwebBtn: document.getElementById("goToBookwebBtn"),
+  canvas: document.getElementById("particle-canvas"),
+};
+
+// 页面初始化
+document.addEventListener("DOMContentLoaded", () => {
+  initDateInfo();
+  initGreeting();
+  initParticles();
+  initBookwebButton();
+});
+
+// 初始化日期信息
+function initDateInfo() {
+  const now = new Date();
+  DOM.currentYear.textContent = now.getFullYear();
+  DOM.lastUpdate.textContent = `最后更新: ${now.toLocaleDateString()}`;
+}
+
+// 初始化问候语
+function initGreeting() {
+  const hour = new Date().getHours();
+  let greetingText = "欢迎回家";
+
+  if (hour < 12) {
+    greetingText = "早上好！";
+  } else if (hour < 18) {
+    greetingText = "下午好！";
+  } else {
+    greetingText = "晚上好！";
+  }
+
+  DOM.greeting.textContent = greetingText;
+}
+
+// 初始化Bookweb按钮
+function initBookwebButton() {
+  // 点击按钮跳转到Bookweb
+  DOM.goToBookwebBtn.addEventListener("click", redirectToBookweb);
+}
+
+// 跳转到Bookweb
+function redirectToBookweb() {
+  window.location.href = "/BookWEB/index.html";
+}
+
+// 粒子背景
+function initParticles() {
+  if (!DOM.canvas) return;
+
+  const ctx = DOM.canvas.getContext("2d");
+  let particlesArray = [];
+
+  // 设置canvas尺寸
+  function resizeCanvas() {
+    DOM.canvas.width = window.innerWidth;
+    DOM.canvas.height = window.innerHeight;
+    // 重新初始化粒子以适应新尺寸
+    initParticlesArray();
+  }
+
+  // 粒子类
+  class Particle {
+    constructor() {
+      this.x = Math.random() * DOM.canvas.width;
+      this.y = Math.random() * DOM.canvas.height;
+      this.size = Math.random() * 3 + 1;
+      this.speedX = (Math.random() - 0.5) * 0.5;
+      this.speedY = (Math.random() - 0.5) * 0.5;
+      this.color = `rgba(100, 200, 255, ${Math.random() * 0.5 + 0.2})`;
+    }
+
+    update() {
+      this.x += this.speedX;
+      this.y += this.speedY;
+
+      // 边界检测
+      if (this.x < 0) this.x = DOM.canvas.width;
+      if (this.x > DOM.canvas.width) this.x = 0;
+      if (this.y < 0) this.y = DOM.canvas.height;
+      if (this.y > DOM.canvas.height) this.y = 0;
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.fillStyle = this.color;
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // 初始化粒子数组
+  function initParticlesArray() {
+    particlesArray = [];
+    const particleCount = Math.min(
+      Math.floor(window.innerWidth / 15),
+      80
+    );
+
+    for (let i = 0; i < particleCount; i++) {
+      particlesArray.push(new Particle());
+    }
+  }
+
+  // 动画循环
+  function animateParticles() {
+    ctx.clearRect(0, 0, DOM.canvas.width, DOM.canvas.height);
+
+    // 更新和绘制粒子
+    for (let i = 0; i < particlesArray.length; i++) {
+      particlesArray[i].update();
+      particlesArray[i].draw();
+    }
+
+    // 绘制连接线
+    for (let a = 0; a < particlesArray.length; a++) {
+      for (let b = a; b < particlesArray.length; b++) {
+        const dx = particlesArray[a].x - particlesArray[b].x;
+        const dy = particlesArray[a].y - particlesArray[b].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 100) {
+          ctx.beginPath();
+          ctx.strokeStyle = particlesArray[a].color;
+          ctx.lineWidth = 0.2;
+          ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+          ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(animateParticles);
+  }
+
+  // 事件监听和初始化
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+  animateParticles();
+}
