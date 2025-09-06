@@ -69,6 +69,42 @@
 
     <canvas id="particle-canvas"></canvas>
 
+    <!-- 左下角上传壁纸按钮 -->
+    <div id="uploadContainer" class="fixed bottom-4 left-4 z-20 opacity-0 hover:opacity-100 transition-opacity duration-300">
+      <button
+          id="bgUploadBtn"
+          class="w-10 h-10 flex items-center justify-center text-primary hover:text-white transition-all duration-300"
+          type="button"
+          aria-label="上传自定义壁纸"
+        >
+          <img src="src/png/Picture.png" alt="上传" class="w-6 h-6">
+        </button>
+    </div>
+
+    <!-- 右下角设置按钮 -->
+    <div id="settingsContainer" class="fixed bottom-4 right-4 z-20 opacity-0 hover:opacity-100 transition-opacity duration-300">
+      <!-- 设置按钮 -->
+      <button
+          id="settingsBtn"
+          class="w-10 h-10 flex items-center justify-center text-primary hover:text-white transition-all duration-300"
+          type="button"
+          aria-label="设置"
+        >
+          <img src="src/png/Settings.png" alt="设置" class="w-6 h-6">
+        </button>
+      <!-- 设置菜单 -->
+      <div id="settingsMenu" class="hidden absolute bottom-full right-0 mt-2 w-48 rounded-lg bg-dark/90 backdrop-blur-md border border-primary/30 shadow-xl overflow-hidden z-30">
+        <button
+          id="resetBgBtn"
+          class="w-full text-left px-4 py-2 hover:bg-primary/20 transition-colors duration-200 text-white flex items-center gap-2"
+          type="button"
+        >
+          <i class="fa fa-refresh text-primary" aria-hidden="true"></i>
+          <span>恢复默认背景</span>
+        </button>
+      </div>
+    </div>
+
 
 
     <div class="content min-h-screen flex flex-col">
@@ -90,20 +126,12 @@
         <div
           class="flex flex-col items-center justify-center min-h-[60vh] text-center"
         >
-          <h1
-            id="greeting"
-            class="text-3xl sm:text-4xl md:text-6xl mb-4 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 text-gradient text-shadow-lg greeting-style"
-          >
-            欢迎回家
-          </h1>
-
-
-
           <!-- 百度搜索栏 -->
-          <div class="w-full max-w-2xl mx-auto mb-8">
-            <form action="https://www.baidu.com/s" method="get" class="flex">
+          <div class="w-full max-w-2xl mx-auto mb-8 relative">
+            <form id="searchForm" action="https://www.baidu.com/s" method="get" class="flex">
               <input
                 type="text"
+                id="searchInput"
                 name="wd"
                 placeholder="百度搜索..."
                 class="flex-grow px-4 py-3 rounded-l-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
@@ -117,106 +145,81 @@
                 <img src="src/png/search.png" alt="搜索" class="w-5 h-5" aria-hidden="true">
               </button>
             </form>
+            <!-- 搜索历史下拉菜单 -->
+            <div id="searchHistory" class="hidden absolute top-full left-0 right-0 mt-1 rounded-lg bg-dark/90 backdrop-blur-md border border-primary/30 shadow-xl overflow-hidden z-30 max-h-60 overflow-y-auto">
+              <div class="p-2 text-xs text-white/60 border-b border-white/10">搜索历史</div>
+              <div id="historyList" class="py-1">
+                <!-- 历史记录项将通过JavaScript动态添加 -->
+              </div>
+              <button id="clearHistory" class="w-full text-left px-4 py-2 hover:bg-primary/20 transition-colors duration-200 text-white text-sm">
+                清空历史记录
+              </button>
+            </div>
+          </div>
+          
+          <!-- 收藏栏 -->
+          <div id="favoritesBar" class="w-full max-w-2xl mx-auto mb-8">
+            <div class="flex flex-wrap items-center gap-2 p-1 rounded-lg bg-white/5 backdrop-blur-sm transition-all duration-300 hover:bg-white/10" style="min-height: 50px;">
+              <!-- 收藏项将通过JavaScript动态添加 -->
+              <div id="addFavoriteBtn" class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center cursor-pointer opacity-0 hover:opacity-100 transition-all duration-300 hover:bg-white/40 hover:scale-105">
+                <i class="fa fa-plus text-white text-lg" aria-hidden="true"></i>
+              </div>
+            </div>
           </div>
 
-
-
-          <!-- 网络设备状态 -->
-          <div class="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-md">
-            <a
-              href="http://192.168.123.254"
-              target="_blank"
-              class="device-card flex flex-col items-center"
-              rel="noopener noreferrer"
-            >
-              <div
-                class="device-icon-container flex items-center justify-center w-14 h-14 rounded-full bg-primary/80 mb-2"
-              >
-                <img
-                  src="src/png/wifi.png"
-                  alt="路由器"
-                  class="w-7 h-7 sm:w-9 sm:h-9"
-                />
+          <!-- 添加收藏对话框 -->
+          <div id="addFavoriteDialog" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="dialogOverlay"></div>
+            <div class="relative w-full max-w-md bg-dark/95 backdrop-blur-md rounded-xl border border-primary/30 shadow-2xl p-6">
+              <div class="space-y-4">
+                <div>
+                  <label for="favoriteName" class="block text-sm font-medium text-white/80 mb-1">网站名称</label>
+                  <input
+                    type="text"
+                    id="favoriteName"
+                    class="w-full px-4 py-2 rounded-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="输入网站名称"
+                  />
+                </div>
+                <div>
+                  <label for="favoriteUrl" class="block text-sm font-medium text-white/80 mb-1">网址</label>
+                  <input
+                    type="url"
+                    id="favoriteUrl"
+                    class="w-full px-4 py-2 rounded-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="https://"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-white/80 mb-1">上传图标</label>
+                  <div class="flex items-center justify-center w-full">
+                    <label for="uploadIcon" class="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-white/30 rounded-lg cursor-pointer bg-white/5 hover:bg-white/10 transition-colors">
+                      <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <i class="fa fa-cloud-upload text-primary text-2xl mb-2"></i>
+                        <p class="text-sm text-white/70">点击上传或拖拽图标文件</p>
+                        <p class="text-xs text-white/50 mt-1">支持 PNG, JPG (最大 2MB)</p>
+                      </div>
+                      <input id="uploadIcon" type="file" accept="image/*" class="hidden" />
+                    </label>
+                  </div>
+                  <!-- 预览上传的图标 -->
+                  <div id="iconPreview" class="hidden mt-2 flex justify-center">
+                    <img id="previewImg" src="" alt="预览图标" class="w-16 h-16 rounded object-cover border border-white/20">
+                  </div>
+                  <input type="hidden" id="selectedIcon" value="">
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                  <button id="cancelAddFavorite" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">取消</button>
+                  <button id="confirmAddFavorite" class="px-4 py-2 rounded-lg bg-primary hover:bg-primary/80 transition-colors">添加</button>
+                </div>
               </div>
-              <span
-                class="text-white/90 text-xs sm:text-sm font-medium text-shadow text-center"
-                >路由器</span
-              >
-            </a>
-
-            <a
-              href="https://192.168.123.20:1234/jason"
-              target="_blank"
-              class="device-card flex flex-col items-center"
-              rel="noopener noreferrer"
-            >
-              <div
-                class="device-icon-container flex items-center justify-center w-14 h-14 rounded-full bg-secondary/80 mb-2"
-              >
-                <img
-                  src="src/png/home.png"
-                  alt="家庭服务器"
-                  class="w-7 h-7 sm:w-9 sm:h-9"
-                />
-              </div>
-              <span
-                class="text-white/90 text-xs sm:text-sm font-medium text-shadow text-center"
-                >家庭服务器</span
-              >
-            </a>
-
-            <a
-              href="https://192.168.123.40:5667/"
-              target="_blank"
-              class="device-card flex flex-col items-center"
-              rel="noopener noreferrer"
-            >
-              <div
-                class="device-icon-container flex items-center justify-center w-14 h-14 rounded-full bg-accent/80 mb-2"
-              >
-                <img
-                  src="src/png/nas.png"
-                  alt="NAS"
-                  class="w-7 h-7 sm:w-9 sm:h-9"
-                />
-              </div>
-              <span
-                class="text-white/90 text-xs sm:text-sm font-medium text-shadow text-center"
-                >NAS</span
-              >
-            </a>
-
-            <a
-              href="http://192.168.123.20:3020"
-              target="_blank"
-              class="device-card flex flex-col items-center"
-              rel="noopener noreferrer"
-            >
-              <div
-                class="device-icon-container flex items-center justify-center w-14 h-14 rounded-full bg-purple/80 mb-2"
-              >
-                <img
-                  src="src/png/data.png"
-                  alt="文件服务器"
-                  class="w-7 h-7 sm:w-9 sm:h-9"
-                />
-              </div>
-              <span
-                class="text-white/90 text-xs sm:text-sm font-medium text-shadow text-center"
-                >文件服务器</span
-              >
-            </a>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 页脚信息 -->
-      <footer
-        class="text-center text-white/80 text-xs sm:text-sm py-4 sm:py-6 text-shadow"
-      >
-        <p>家庭网络系统 © <span id="current-year">2023</span></p>
-        <p class="mt-1" id="last-update">最后更新: 2023-01-01</p>
-      </footer>
+
     </div>
 
     <!-- 引入外部JavaScript文件 -->
