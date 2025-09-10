@@ -567,26 +567,6 @@ function restoreWallpaperFromStorage() {
   }
 }
 
-// 初始化日期信息
-function initDateInfo() {
-  const now = new Date();
-  DOM.currentYear.textContent = now.getFullYear();
-  DOM.lastUpdate.textContent = `最后更新: ${now.toLocaleDateString()}`;
-}
-
-
-
-// 初始化Bookweb按钮
-function initBookwebButton() {
-  // 点击按钮跳转到Bookweb
-  DOM.goToBookwebBtn.addEventListener("click", redirectToBookweb);
-}
-
-// 跳转到Bookweb
-function redirectToBookweb() {
-  window.location.href = "/BookWEB/index.html";
-}
-
 // 粒子背景
 function initParticles() {
   if (!DOM.canvas) return;
