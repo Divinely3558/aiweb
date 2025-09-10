@@ -177,25 +177,26 @@
           <!-- 收藏栏优化：支持网页收藏展示，样式更紧凑 -->
           <div
             id="favoritesBar"
-            class="w-full max-w-4xl mx-auto flex justify-center gap-2 flex-wrap"
+            class="w-full max-w-4xl mx-auto flex justify-start gap-2 flex-wrap"
           >
-            <!-- 收藏项将由JS动态生成 -->
+            <!-- 添加收藏按钮（移到左侧） -->
             <button
               id="addFavoriteBtn"
-              class="relative p-2 transition-all duration-300 hover:bg-primary/10 rounded-lg opacity-100"
+              class="relative p-2 transition-all duration-300 hover:bg-primary/10 rounded-lg opacity-100 order-first ml-0"
               type="button"
               aria-label="添加收藏"
             >
               <div class="flex flex-col items-center justify-center w-full">
-                <div class="text-primary mb-1">
-                  <i class="fa fa-plus text-xl"></i>
+                <div class="mb-1">
+                  <img
+                    src="src/png/AddFavorite.svg"
+                    alt="添加"
+                    class="w-6 h-6"
+                  />
                 </div>
-                <span
-                  class="text-xs font-medium text-white truncate w-full text-center"
-                  >添加</span
-                >
               </div>
             </button>
+            <!-- 收藏项将由JS动态生成 -->
           </div>
         </div>
       </div>

@@ -431,16 +431,18 @@ function updateFavoritesUI() {
   const addBtn = document.createElement("button");
   addBtn.id = "addFavoriteBtn";
   addBtn.className =
-    "relative p-2 transition-all duration-300 hover:bg-primary/10 rounded-lg opacity-0";
+    "relative p-2 transition-all duration-300 hover:bg-primary/10 rounded-lg opacity-0 order-first";
   addBtn.innerHTML = `
     <div class="flex flex-col items-center justify-center w-full">
-      <div class="text-primary mb-1"><i class="fa fa-plus text-xl"></i></div>
-      <span class="text-xs font-medium text-white truncate w-full text-center">添加</span>
+      <div class="mb-1">
+        <img src="src/png/AddFavorite.svg" alt="添加" class="w-6 h-6" />
+      </div>
     </div>
   `;
   addBtn.title = "添加收藏";
 
-  DOM.favoritesBar.appendChild(addBtn);
+  // 将添加收藏按钮插入到收藏栏的最前面
+  DOM.favoritesBar.insertBefore(addBtn, DOM.favoritesBar.firstChild);
 
   // 重新绑定添加收藏按钮的点击事件
   addBtn.addEventListener("click", () => {
@@ -748,12 +750,13 @@ function setFavorites(list) {
 }
 
 // 渲染收藏栏
-function renderFavorites() {
-  const bar = document.getElementById("favoritesBar");
-  // 清除除添加按钮外的收藏项
-  bar.querySelectorAll(".favorite-item").forEach((e) => e.remove());
-  const favorites = getFavorites();
-  favorites.forEach((fav, idx) => {
+function renderFavorites(favorites) {
+  const favoritesBar = document.getElementById("favoritesBar");
+  // 保留 addFavoriteBtn
+  const addBtn = document.getElementById("addFavoriteBtn");
+  favoritesBar.innerHTML = ""; // 清空收藏栏
+  favoritesBar.appendChild(addBtn); // 先添加收藏按钮
+  favorites.forEach((fav) => {
     const btn = document.createElement("a");
     btn.className =
       "favorite-item flex flex-col items-center justify-center p-2 rounded-lg hover:bg-primary/10 transition-all duration-300";
@@ -785,7 +788,7 @@ function renderFavorites() {
       setFavorites(favorites);
       renderFavorites();
     };
-    bar.insertBefore(btn, document.getElementById("addFavoriteBtn"));
+    favoritesBar.appendChild(btn);
   });
 }
 
