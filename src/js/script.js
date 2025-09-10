@@ -201,24 +201,9 @@ function initFavoritesFunctionality() {
   // 从本地存储加载收藏
   loadFavorites();
 
-  // 收藏栏鼠标悬停效果
-  DOM.favoritesBar.addEventListener("mouseenter", () => {
-    DOM.addFavoriteBtn.classList.remove("opacity-0");
-    DOM.addFavoriteBtn.classList.add("opacity-100");
-  });
-
-  DOM.favoritesBar.addEventListener("mouseleave", () => {
-    // 只有在鼠标真正离开收藏栏区域时才隐藏添加按钮
-    setTimeout(() => {
-      if (
-        !DOM.favoritesBar.matches(":hover") &&
-        !DOM.addFavoriteBtn.matches(":hover")
-      ) {
-        DOM.addFavoriteBtn.classList.remove("opacity-100");
-        DOM.addFavoriteBtn.classList.add("opacity-0");
-      }
-    }, 100);
-  });
+  // 确保添加收藏按钮始终可见
+  DOM.addFavoriteBtn.classList.remove("opacity-0");
+  DOM.addFavoriteBtn.classList.add("opacity-100");
 
   // 添加收藏按钮
   DOM.addFavoriteBtn.addEventListener("click", () => {
@@ -252,14 +237,30 @@ function hideAddFavoriteDialog() {
 
 function loadFavorites() {
   try {
-    const saved = localStorage.getItem("favorites");
-    favorites = saved ? JSON.parse(saved) : [];
-    // 确保每个收藏项都有icon属性，如果没有则使用默认图标
-    favorites = favorites.map((fav) => ({
-      ...fav,
-      icon: fav.icon || "fa-globe",
-    }));
-    updateFavoritesUI();
+    // 尝试从favorites.json文件加载数据
+    fetch("src/data/favorites.json")
+      .then((response) => {
+        if (!response.ok) throw new Error("网络响应异常");
+        return response.json();
+      })
+      .then((data) => {
+        favorites = data || [];
+        // 确保每个收藏项都有icon属性，如果没有则使用默认图标
+        favorites = favorites.map((fav) => ({
+          ...fav,
+          icon: fav.icon || "fa-globe",
+        }));
+        // 同时保存到localStorage作为后备存储
+        localStorage.setItem("favorites", JSON.stringify(favorites));
+        updateFavoritesUI();
+      })
+      .catch((error) => {
+        console.warn("从文件加载收藏失败，尝试从localStorage加载:", error);
+        // 从localStorage加载作为后备方案
+        const saved = localStorage.getItem("favorites");
+        favorites = saved ? JSON.parse(saved) : [];
+        updateFavoritesUI();
+      });
   } catch (e) {
     favorites = [];
     console.error("加载收藏失败:", e);
@@ -268,7 +269,24 @@ function loadFavorites() {
 
 function saveFavorites() {
   try {
+    // 保存到localStorage以便在页面刷新时快速恢复
     localStorage.setItem("favorites", JSON.stringify(favorites));
+
+    // 创建下载链接，让用户可以保存数据文件
+    const dataStr = JSON.stringify(favorites, null, 2);
+    const dataUri =
+      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = "favorites.json";
+
+    const linkElement = document.createElement("a");
+    linkElement.setAttribute("href", dataUri);
+    linkElement.setAttribute("download", exportFileDefaultName);
+    linkElement.click();
+
+    console.log(
+      "收藏数据已保存，请将下载的文件替换src/data/favorites.json以永久保存"
+    );
   } catch (e) {
     console.error("保存收藏失败:", e);
   }
@@ -279,7 +297,7 @@ function addFavorite() {
   let url = DOM.favoriteUrlInput.value.trim();
   const icon = DOM.selectedIcon.value;
 
-  if (!name || !url) {
+  if (name.length === 0 || url.length === 0) {
     alert("请输入名称和网址");
     return;
   }
@@ -378,86 +396,11 @@ function resetIconSelection() {
 }
 
 function updateFavoritesUI() {
-  // 清空现有收藏
-  DOM.favoritesBar.innerHTML = "";
-
-  // 获取收藏列表
-  const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-  // 添加收藏按钮
-  favorites.forEach((favorite, index) => {
-    const favoriteBtn = document.createElement("button");
-    favoriteBtn.className =
-      "relative p-2 transition-all duration-300 hover:bg-primary/10 rounded-lg";
-
-    // 判断是否为自定义上传图标
-    let iconHTML = "";
-    if (favorite.icon && favorite.icon.startsWith("data:image/")) {
-      // 自定义上传的图标（Base64格式）
-      iconHTML = `<img src="${favorite.icon}" class="w-8 h-8 object-contain mb-1" alt="${favorite.name}">`;
-    } else {
-      // 默认图标
-      iconHTML = `<div class="text-primary mb-1"><i class="fa ${
-        favorite.icon || "fa-globe"
-      } text-xl"></i></div>`;
-    }
-
-    favoriteBtn.innerHTML = `
-      <div class="flex flex-col items-center justify-center w-full">
-        ${iconHTML}
-        <span class="text-xs font-medium text-white truncate w-full text-center">${favorite.name}</span>
-      </div>
-    `;
-    favoriteBtn.title = favorite.name;
-
-    // 添加点击事件
-    favoriteBtn.addEventListener("click", () => {
-      window.open(favorite.url, "_blank");
-    });
-
-    // 添加右键菜单删除功能
-    favoriteBtn.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      // 删除对应的收藏
-      favorites.splice(index, 1);
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-      updateFavoritesUI();
-    });
-
-    DOM.favoritesBar.appendChild(favoriteBtn);
-  });
-
-  // 添加添加收藏的按钮
-  const addBtn = document.createElement("button");
-  addBtn.id = "addFavoriteBtn";
-  addBtn.className =
-    "relative p-2 transition-all duration-300 hover:bg-primary/10 rounded-lg opacity-0 order-first";
-  addBtn.innerHTML = `
-    <div class="flex flex-col items-center justify-center w-full">
-      <div class="mb-1">
-        <img src="src/png/AddFavorite.svg" alt="添加" class="w-6 h-6" />
-      </div>
-    </div>
-  `;
-  addBtn.title = "添加收藏";
-
-  // 将添加收藏按钮插入到收藏栏的最前面
-  DOM.favoritesBar.insertBefore(addBtn, DOM.favoritesBar.firstChild);
-
-  // 重新绑定添加收藏按钮的点击事件
-  addBtn.addEventListener("click", () => {
-    // 清空输入框
-    DOM.favoriteNameInput.value = "";
-    DOM.favoriteUrlInput.value = "";
-    // 重置选中的图标
-    resetIconSelection();
-    // 显示对话框
-    DOM.addFavoriteDialog.classList.remove("hidden");
-    DOM.dialogOverlay.classList.remove("hidden");
-    // 聚焦到名称输入框
-    DOM.favoriteNameInput.focus();
-  });
+  // 使用renderFavorites函数代替重复实现
+  renderFavorites();
 }
+
+// 添加收藏按钮的初始化已经在renderFavorites函数中处理
 
 // 触发文件上传对话框
 function triggerFileUpload() {
@@ -741,97 +684,92 @@ function initParticles() {
   animateParticles();
 }
 
-// 收藏数据本地存储
+// 收藏数据管理
 function getFavorites() {
-  return JSON.parse(localStorage.getItem("favorites") || "[]");
+  // 优先返回内存中的favorites数组
+  if (Array.isArray(favorites) && favorites.length > 0) {
+    return favorites;
+  }
+  // 如果内存中没有，从localStorage加载
+  try {
+    return JSON.parse(localStorage.getItem("favorites") || "[]");
+  } catch (e) {
+    console.error("获取收藏失败:", e);
+    return [];
+  }
 }
 function setFavorites(list) {
+  // 更新内存中的favorites数组
+  favorites = list;
+  // 保存到localStorage
   localStorage.setItem("favorites", JSON.stringify(list));
+  // 同时提示用户保存到文件
+  const dataStr = JSON.stringify(list, null, 2);
+  const dataUri =
+    "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+  const exportFileDefaultName = "favorites.json";
+
+  const linkElement = document.createElement("a");
+  linkElement.setAttribute("href", dataUri);
+  linkElement.setAttribute("download", exportFileDefaultName);
+  linkElement.click();
+
+  console.log(
+    "收藏数据已保存，请将下载的文件替换src/data/favorites.json以永久保存"
+  );
 }
 
 // 渲染收藏栏
-function renderFavorites(favorites) {
-  const favoritesBar = document.getElementById("favoritesBar");
-  // 保留 addFavoriteBtn
-  const addBtn = document.getElementById("addFavoriteBtn");
-  favoritesBar.innerHTML = ""; // 清空收藏栏
-  favoritesBar.appendChild(addBtn); // 先添加收藏按钮
-  favorites.forEach((fav) => {
-    const btn = document.createElement("a");
-    btn.className =
-      "favorite-item flex flex-col items-center justify-center p-2 rounded-lg hover:bg-primary/10 transition-all duration-300";
-    btn.href = fav.url;
-    btn.target = "_blank";
-    btn.rel = "noopener noreferrer";
-    btn.innerHTML = `
-      <img src="${
-        fav.icon || "src/png/Picture.svg"
-      }" alt="icon" class="w-8 h-8 mb-1 rounded object-cover border border-white/10" />
-      <span class="text-xs font-medium text-white truncate w-16 text-center">${
-        fav.name
-      }</span>
-      <button class="remove-fav absolute top-1 right-1 text-xs text-white/50 hover:text-red-400" title="移除" style="display:none;"><i class="fa fa-times"></i></button>
-    `;
-    btn.style.position = "relative";
-    // 移除按钮
-    btn.addEventListener(
-      "mouseenter",
-      () => (btn.querySelector(".remove-fav").style.display = "block")
-    );
-    btn.addEventListener(
-      "mouseleave",
-      () => (btn.querySelector(".remove-fav").style.display = "none")
-    );
-    btn.querySelector(".remove-fav").onclick = (e) => {
-      e.preventDefault();
-      favorites.splice(idx, 1);
-      setFavorites(favorites);
-      renderFavorites();
-    };
-    favoritesBar.appendChild(btn);
-  });
+// 只展示收藏（后台维护 favorites.json）
+function renderFavorites() {
+  fetch("src/data/favorites.json")
+    .then((res) => res.json())
+    .then((favorites) => {
+      const favoritesBar = document.getElementById("favoritesBar");
+      favoritesBar.innerHTML = "";
+      favorites.forEach((fav) => {
+        const item = document.createElement("a");
+        item.href = fav.url;
+        item.target = "_blank";
+        item.className =
+          "flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-primary/20 transition-colors";
+        item.innerHTML = `
+          <img src="${
+            fav.icon || "src/png/home.png"
+          }" alt="icon" class="w-6 h-6 rounded object-cover border border-white/20" />
+          <span class="text-white text-sm">${fav.name}</span>
+        `;
+        favoritesBar.appendChild(item);
+      });
+    });
 }
 
-// 添加收藏弹窗逻辑
-document.getElementById("addFavoriteBtn").onclick = () => {
-  document.getElementById("addFavoriteDialog").classList.remove("hidden");
-};
-document.getElementById("cancelAddFavorite").onclick = () => {
-  document.getElementById("addFavoriteDialog").classList.add("hidden");
-  document.getElementById("favoriteName").value = "";
-  document.getElementById("favoriteUrl").value = "";
-  document.getElementById("selectedIcon").value = "";
-  document.getElementById("iconPreview").classList.add("hidden");
-};
-document.getElementById("confirmAddFavorite").onclick = () => {
-  const name = document.getElementById("favoriteName").value.trim();
-  const url = document.getElementById("favoriteUrl").value.trim();
-  const icon = document.getElementById("selectedIcon").value;
-  if (!name || !url) return alert("请填写名称和网址");
-  const favorites = getFavorites();
-  favorites.push({ name, url, icon });
-  setFavorites(favorites);
-  renderFavorites();
-  document.getElementById("addFavoriteDialog").classList.add("hidden");
-  document.getElementById("favoriteName").value = "";
-  document.getElementById("favoriteUrl").value = "";
-  document.getElementById("selectedIcon").value = "";
-  document.getElementById("iconPreview").classList.add("hidden");
-};
-
-// 图标上传预览
-document.getElementById("uploadIcon").onchange = function (e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 2 * 1024 * 1024) return alert("文件太大");
-  const reader = new FileReader();
-  reader.onload = function (ev) {
-    document.getElementById("previewImg").src = ev.target.result;
-    document.getElementById("iconPreview").classList.remove("hidden");
-    document.getElementById("selectedIcon").value = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-};
+document.addEventListener("DOMContentLoaded", renderFavorites);
 
 // 初始化
-document.addEventListener("DOMContentLoaded", renderFavorites);
+document.addEventListener("DOMContentLoaded", () => {
+  // 确保addToSearchHistory函数存在
+  if (typeof addToSearchHistory === "undefined") {
+    window.addToSearchHistory = function (query) {
+      // 简化版的搜索历史添加函数
+      try {
+        let searchHistory = JSON.parse(
+          localStorage.getItem("searchHistory") || "[]"
+        );
+        // 移除重复项
+        searchHistory = searchHistory.filter((item) => item !== query);
+        // 添加到开头
+        searchHistory.unshift(query);
+        // 限制数量
+        if (searchHistory.length > 10) {
+          searchHistory = searchHistory.slice(0, 10);
+        }
+        localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+      } catch (e) {
+        console.error("保存搜索历史失败:", e);
+      }
+    };
+  }
+  renderFavorites();
+});
