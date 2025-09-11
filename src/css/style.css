@@ -2,122 +2,76 @@
   .content-auto {
     content-visibility: auto;
   }
-  .text-gradient {
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .transition-bg {
+    transition: background-color 0.3s ease;
+  }
+  .transition-all-custom {
+    transition: all 0.3s ease;
+  }
+  .bookmark-item-drag {
+    opacity: 0.5;
+    border-style: dashed;
+    border-color: #165dff;
   }
   .backdrop-blur {
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-  .device-card {
-    @apply flex flex-col items-center p-2 sm:p-3 transition-all duration-300 hover:-translate-y-1 hover:scale-105;
-  }
-  .device-icon-container {
-    @apply w-12 sm:w-16 h-12 sm:h-16 rounded-full flex items-center justify-center mb-2 shadow-lg border-2 border-white/20 transition-transform duration-300 hover:scale-110;
-  }
-
-  .device-icon-container img {
-    @apply transition-transform duration-300 hover:scale-125;
-  }
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-  .text-shadow-lg {
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
-  }
-  /* 问候语专用样式 */
-  .greeting-style {
-    @apply font-heading font-bold tracking-tight leading-tight;
-  }
-  /* Bookweb标题专用样式 */
-  .bookweb-title {
-    @apply font-heading font-semibold tracking-wide leading-relaxed;
   }
 }
 
+/* 全局样式 */
 body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-#particle-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
 }
 
-.content {
-  position: relative;
-  z-index: 10;
-}
-
-input[type="text"] {
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-input[type="text"]::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-@media (max-width: 640px) {
-  .device-icon img {
-    width: 24px !important;
-    height: 24px !important;
+/* 动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  .device-icon-container {
-    width: 40px !important;
-    height: 40px !important;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
-
-.preload-images {
-  display: none;
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease forwards;
 }
 
-/* 隐藏元素类 */
-.hidden {
-  display: none !important;
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slideIn {
+  animation: slideIn 0.3s ease forwards;
 }
 
-/* 分类标签样式 */
-.category-tag {
-  @apply px-4 py-1.5 rounded-full text-white text-sm whitespace-nowrap transition-all duration-300 cursor-pointer;
+/* 拖拽排序相关样式 */
+.drag-ghost {
+  opacity: 0.5;
 }
-
-.category-tag.active {
-  @apply bg-primary text-white;
-}
-
-.category-tag:not(.active):hover {
-  @apply bg-white/20;
-}
-
-/* 隐藏滚动条但保留滚动功能 */
-.hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
-}
-
-/* 收藏卡片增强样式 */
-.favorite-card {
-  @apply group relative flex flex-col items-center justify-center p-3 rounded-xl bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border border-white/10 hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/10 overflow-hidden;
-}
-
-/* 空状态样式 */
-.empty-state {
-  @apply col-span-full flex flex-col items-center justify-center py-12 text-center;
+.drag-over {
+  border-top: 2px solid #165dff;
 }
