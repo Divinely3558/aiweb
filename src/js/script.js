@@ -134,7 +134,15 @@ function setCustomWallpaper(imageData) {
 
 function saveWallpaperToStorage(imageData) {
   try {
-    localStorage.setItem(STORAGE_KEY, imageData);
+    // 检查localStorage是否可用并有足够空间
+    if (typeof Storage !== "undefined") {
+      // 检查数据大小是否超过localStorage限制
+      if (imageData.length * 2 > 5 * 1024 * 1024) { // 大约检查是否超过5MB
+        alert("图片文件过大，可能无法保存");
+        return;
+      }
+      localStorage.setItem(STORAGE_KEY, imageData);
+    }
   } catch (error) {
     console.error("保存壁纸到本地存储失败:", error);
   }
@@ -142,9 +150,12 @@ function saveWallpaperToStorage(imageData) {
 
 function restoreWallpaperFromStorage() {
   try {
-    const savedWallpaper = localStorage.getItem(STORAGE_KEY);
-    if (savedWallpaper) {
-      setCustomWallpaper(savedWallpaper);
+    // 确保localStorage可用
+    if (typeof Storage !== "undefined") {
+      const savedWallpaper = localStorage.getItem(STORAGE_KEY);
+      if (savedWallpaper) {
+        setCustomWallpaper(savedWallpaper);
+      }
     }
   } catch (error) {
     console.error("从本地存储恢复壁纸失败:", error);
@@ -160,9 +171,11 @@ function resetBackground() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-// 搜索相关
+// 搜索相关 - 完全还原原始搜索功能
 function initSearchFunctionality() {
   loadSearchHistory();
+  
+  // 搜索表单提交处理
   DOM.searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const query = DOM.searchInput.value.trim();
@@ -174,10 +187,14 @@ function initSearchFunctionality() {
       );
     }
   });
+  
+  // 输入框聚焦时显示搜索历史
   DOM.searchInput.addEventListener("focus", () => {
     updateSearchHistoryUI();
     DOM.searchHistory.classList.remove("hidden");
   });
+  
+  // 点击其他区域隐藏搜索历史
   document.addEventListener("click", (e) => {
     if (
       !DOM.searchForm.contains(e.target) &&
@@ -186,46 +203,81 @@ function initSearchFunctionality() {
       DOM.searchHistory.classList.add("hidden");
     }
   });
+  
+  // 清除历史记录
   DOM.clearHistoryBtn.addEventListener("click", () => {
     if (confirm("确定要清除所有搜索历史吗？")) clearSearchHistory();
   });
 }
 
+// 加载搜索历史
 function loadSearchHistory() {
   try {
-    const saved = localStorage.getItem("searchHistory");
-    searchHistory = saved ? JSON.parse(saved) : [];
+    // 确保localStorage可用
+    if (typeof Storage !== "undefined") {
+      const saved = localStorage.getItem("searchHistory");
+      searchHistory = saved ? JSON.parse(saved) : [];
+    } else {
+      searchHistory = [];
+    }
   } catch (e) {
+    console.error("加载搜索历史失败:", e);
     searchHistory = [];
   }
 }
 
+// 保存搜索历史
 function saveSearchHistory() {
   try {
-    localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+    // 确保localStorage可用
+    if (typeof Storage !== "undefined") {
+      localStorage.setItem("searchHistory", JSON.stringify(searchHistory));
+    }
   } catch (e) {
     console.error("保存搜索历史失败:", e);
   }
 }
 
+// 添加搜索记录
 function addToSearchHistory(query) {
+  if (!query || typeof query !== 'string' || query.trim() === '') {
+    return;
+  }
+  
+  // 移除重复项
   searchHistory = searchHistory.filter((item) => item !== query);
+  
+  // 添加到历史记录开头
   searchHistory.unshift(query);
+  
+  // 限制历史记录数量
   if (searchHistory.length > MAX_HISTORY_ITEMS) {
     searchHistory = searchHistory.slice(0, MAX_HISTORY_ITEMS);
   }
+  
+  // 保存并更新UI
   saveSearchHistory();
   updateSearchHistoryUI();
 }
 
+// 清除搜索历史
 function clearSearchHistory() {
   searchHistory = [];
   saveSearchHistory();
   updateSearchHistoryUI();
 }
 
+// 更新搜索历史UI
 function updateSearchHistoryUI() {
+  // 确保DOM元素存在
+  if (!DOM.historyList || !DOM.clearHistoryBtn) {
+    return;
+  }
+  
+  // 清空列表
   DOM.historyList.innerHTML = "";
+  
+  // 显示空状态或历史记录
   if (searchHistory.length === 0) {
     const emptyItem = document.createElement("li");
     emptyItem.className = "px-3 py-2 text-gray-400 text-sm text-left";
@@ -234,15 +286,22 @@ function updateSearchHistoryUI() {
     DOM.clearHistoryBtn.classList.add("hidden");
   } else {
     DOM.clearHistoryBtn.classList.remove("hidden");
+    
+    // 添加历史记录项
     searchHistory.forEach((item) => {
       const historyItem = document.createElement("li");
       historyItem.className =
         "px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer text-left";
       historyItem.textContent = item;
+      
+      // 点击历史记录项执行搜索
       historyItem.addEventListener("click", () => {
-        DOM.searchInput.value = item;
-        DOM.searchForm.dispatchEvent(new Event("submit"));
+        if (DOM.searchInput && DOM.searchForm) {
+          DOM.searchInput.value = item;
+          DOM.searchForm.dispatchEvent(new Event("submit"));
+        }
       });
+      
       DOM.historyList.appendChild(historyItem);
     });
   }
