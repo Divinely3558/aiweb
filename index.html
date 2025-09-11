@@ -144,12 +144,59 @@
             </div>
           </div>
 
-          <!-- 收藏栏：只展示后台维护的收藏 -->
+          <!-- 添加收藏按钮 -->
+          <button
+            id="addFavoriteBtn"
+            class="mb-6 px-4 py-2 rounded-lg bg-primary/80 hover:bg-primary transition-colors text-white flex items-center gap-2"
+            type="button"
+            aria-label="添加收藏"
+          >
+            <img src="src/png/AddFavorite.svg" alt="添加" class="w-5 h-5" />
+            <span>添加收藏</span>
+          </button>
+
+          <!-- 收藏栏 -->
           <div
             id="favoritesBar"
             class="w-full max-w-4xl mx-auto flex justify-start gap-2 flex-wrap"
           >
             <!-- 收藏项将由JS动态生成 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加收藏对话框 -->
+    <div id="dialogOverlay" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center"></div>
+    <div id="addFavoriteDialog" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="w-full max-w-md rounded-xl bg-dark/90 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden">
+        <div class="p-4 border-b border-white/10">
+          <h3 class="text-lg font-semibold">添加收藏</h3>
+        </div>
+        <div class="p-4">
+          <div class="mb-4">
+            <label for="favoriteName" class="block text-sm font-medium text-white/80 mb-1">网站名称</label>
+            <input type="text" id="favoriteName" class="w-full px-3 py-2 rounded-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="请输入网站名称">
+          </div>
+          <div class="mb-4">
+            <label for="favoriteUrl" class="block text-sm font-medium text-white/80 mb-1">网址</label>
+            <input type="text" id="favoriteUrl" class="w-full px-3 py-2 rounded-lg bg-white/10 backdrop-blur border border-white/20 focus:outline-none focus:ring-2 focus:ring-primary" placeholder="请输入网址">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-white/80 mb-1">网站图标</label>
+            <div id="uploadArea" class="border-2 border-dashed border-white/20 rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors">
+              <input type="file" id="uploadIcon" class="hidden" accept="image/*">
+              <img src="src/png/Picture.svg" alt="上传图标" class="w-10 h-10 mx-auto mb-2 opacity-70">
+              <p class="text-sm text-white/60">点击或拖拽上传图标</p>
+              <div id="iconPreview" class="hidden mt-2 flex justify-center">
+                <img id="previewImg" src="" alt="预览图标" class="w-16 h-16 rounded object-cover border border-white/20">
+              </div>
+            </div>
+            <input type="hidden" id="selectedIcon" value="">
+          </div>
+          <div class="flex justify-end space-x-3 pt-2">
+            <button id="cancelAddFavorite" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">取消</button>
+            <button id="confirmAddFavorite" class="px-4 py-2 rounded-lg bg-primary hover:bg-primary/80 transition-colors">添加</button>
           </div>
         </div>
       </div>

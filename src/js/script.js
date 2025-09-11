@@ -1,33 +1,43 @@
 // 封装DOM元素获取
-const DOM = {
-  canvas: document.getElementById("particle-canvas"),
-  bgUploadBtn: document.getElementById("bgUploadBtn"),
-  uploadContainer: document.getElementById("uploadContainer"),
-  settingsBtn: document.getElementById("settingsBtn"),
-  resetBgBtn: document.getElementById("resetBgBtn"),
-  settingsMenu: document.getElementById("settingsMenu"),
-  settingsContainer: document.getElementById("settingsContainer"),
-  backgroundLayers: document.querySelectorAll(".fixed.inset-0.z-0"),
-  // 搜索功能
-  searchForm: document.getElementById("searchForm"),
-  searchInput: document.getElementById("searchInput"),
-  searchHistory: document.getElementById("searchHistory"),
-  historyList: document.getElementById("historyList"),
-  clearHistoryBtn: document.getElementById("clearHistory"),
-  // 收藏功能
-  addFavoriteBtn: document.getElementById("addFavoriteBtn"),
-  addFavoriteDialog: document.getElementById("addFavoriteDialog"),
-  dialogOverlay: document.getElementById("dialogOverlay"),
-  cancelAddFavoriteBtn: document.getElementById("cancelAddFavorite"),
-  confirmAddFavoriteBtn: document.getElementById("confirmAddFavorite"),
-  favoriteNameInput: document.getElementById("favoriteName"),
-  favoriteUrlInput: document.getElementById("favoriteUrl"),
-  favoritesBar: document.getElementById("favoritesBar"),
-  selectedIcon: document.getElementById("selectedIcon"),
-  uploadIcon: document.getElementById("uploadIcon"),
-  iconPreview: document.getElementById("iconPreview"),
-  previewImg: document.getElementById("previewImg"),
-};
+// 使用一个安全的方式来获取DOM元素，避免在DOMContentLoaded前获取导致的问题
+function getDOM() {
+  return {
+    canvas: document.getElementById("particle-canvas"),
+    settingsBtn: document.getElementById("settingsBtn"),
+    resetBgBtn: document.getElementById("resetBgBtn"),
+    settingsMenu: document.getElementById("settingsMenu"),
+    settingsContainer: document.getElementById("settingsContainer"),
+    backgroundLayers: document.querySelectorAll(".fixed.inset-0.z-0"),
+    // 搜索功能
+    searchForm: document.getElementById("searchForm"),
+    searchInput: document.getElementById("searchInput"),
+    searchHistory: document.getElementById("searchHistory"),
+    historyList: document.getElementById("historyList"),
+    clearHistoryBtn: document.getElementById("clearHistory"),
+    // 收藏功能
+    addFavoriteBtn: document.getElementById("addFavoriteBtn"),
+    addFavoriteDialog: document.getElementById("addFavoriteDialog"),
+    dialogOverlay: document.getElementById("dialogOverlay"),
+    cancelAddFavorite: document.getElementById("cancelAddFavorite"),
+    confirmAddFavorite: document.getElementById("confirmAddFavorite"),
+    favoriteName: document.getElementById("favoriteName"),
+    favoriteUrl: document.getElementById("favoriteUrl"),
+    favoritesBar: document.getElementById("favoritesBar"),
+    selectedIcon: document.getElementById("selectedIcon"),
+    uploadIcon: document.getElementById("uploadIcon"),
+    iconPreview: document.getElementById("iconPreview"),
+    previewImg: document.getElementById("previewImg"),
+    uploadArea: document.getElementById("uploadArea"),
+    favoriteIconUpload: document.getElementById("uploadIcon"),
+  };
+}
+
+// 初始化DOM对象
+let DOM;
+
+document.addEventListener("DOMContentLoaded", () => {
+  DOM = getDOM();
+});
 
 // 页面初始化
 document.addEventListener("DOMContentLoaded", () => {
@@ -35,6 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const greetingElement = document.getElementById("greeting");
   if (greetingElement) {
     greetingElement.remove();
+  }
+
+  // 确保DOM已经初始化
+  if (!DOM) {
+    DOM = getDOM();
   }
 
   initParticles();
@@ -47,6 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (DOM.addFavoriteBtn) {
     initFavoritesFunctionality();
   }
+  
+  // 初始化更换壁纸功能
+  initWallpaperFunctionality();
 });
 
 // 全局变量
@@ -54,6 +72,7 @@ let isCustomWallpaperActive = false;
 let customWallpaperElement = null;
 let fileInput = null;
 const STORAGE_KEY = "custom-wallpaper";
+let favorites = [];
 
 // 搜索历史相关
 const MAX_HISTORY_ITEMS = 10;
@@ -72,20 +91,78 @@ function initBackgroundToggle() {
   fileInput.addEventListener("change", handleFileSelection);
   document.body.appendChild(fileInput);
 
-  // 绑定上传按钮点击事件
-  DOM.bgUploadBtn.addEventListener("click", triggerFileUpload);
-
   // 绑定设置按钮点击事件
-  DOM.settingsBtn.addEventListener("click", toggleSettingsMenu);
+  if (DOM.settingsBtn) {
+    DOM.settingsBtn.addEventListener("click", toggleSettingsMenu);
+  }
 
   // 绑定恢复默认背景按钮点击事件
-  DOM.resetBgBtn.addEventListener("click", resetBackground);
+  if (DOM.resetBgBtn) {
+    DOM.resetBgBtn.addEventListener("click", resetBackground);
+  }
 
   // 点击页面其他区域关闭设置菜单
   document.addEventListener("click", closeSettingsMenuOnClickOutside);
 
   // 从本地存储恢复壁纸
   restoreWallpaperFromStorage();
+}
+
+// 初始化更换壁纸功能
+function initWallpaperFunctionality() {
+  // 检查设置菜单是否存在，如果不存在则创建
+  if (!DOM.settingsMenu) {
+    // 创建设置菜单
+    const settingsMenu = document.createElement("div");
+    settingsMenu.id = "settingsMenu";
+    settingsMenu.className = "hidden absolute bottom-full right-0 mt-2 w-48 rounded-lg bg-dark/90 backdrop-blur-md border border-primary/30 shadow-xl overflow-hidden z-30";
+    
+    // 添加更换壁纸按钮
+    const changeWallpaperBtn = document.createElement("button");
+    changeWallpaperBtn.id = "changeWallpaperBtn";
+    changeWallpaperBtn.className = "w-full text-left px-4 py-2 hover:bg-primary/20 transition-colors duration-200 text-white flex items-center gap-2";
+    changeWallpaperBtn.innerHTML = '<i class="fa fa-picture-o text-primary" aria-hidden="true"></i><span>更换壁纸</span>';
+    changeWallpaperBtn.addEventListener("click", triggerFileUpload);
+    
+    // 添加恢复默认背景按钮（如果不存在）
+    if (!DOM.resetBgBtn) {
+      const resetBgBtn = document.createElement("button");
+      resetBgBtn.id = "resetBgBtn";
+      resetBgBtn.className = "w-full text-left px-4 py-2 hover:bg-primary/20 transition-colors duration-200 text-white flex items-center gap-2";
+      resetBgBtn.innerHTML = '<i class="fa fa-refresh text-primary" aria-hidden="true"></i><span>恢复默认背景</span>';
+      resetBgBtn.addEventListener("click", resetBackground);
+      
+      settingsMenu.appendChild(resetBgBtn);
+      DOM.resetBgBtn = resetBgBtn;
+    }
+    
+    settingsMenu.appendChild(changeWallpaperBtn);
+    
+    // 将设置菜单添加到设置容器中
+    if (DOM.settingsContainer) {
+      DOM.settingsContainer.appendChild(settingsMenu);
+      DOM.settingsMenu = settingsMenu;
+    }
+  } else {
+    // 检查更换壁纸按钮是否已存在
+    let changeWallpaperBtn = document.getElementById("changeWallpaperBtn");
+    if (!changeWallpaperBtn) {
+      // 创建更换壁纸按钮
+      changeWallpaperBtn = document.createElement("button");
+      changeWallpaperBtn.id = "changeWallpaperBtn";
+      changeWallpaperBtn.className = "w-full text-left px-4 py-2 hover:bg-primary/20 transition-colors duration-200 text-white flex items-center gap-2";
+      changeWallpaperBtn.innerHTML = '<i class="fa fa-picture-o text-primary" aria-hidden="true"></i><span>更换壁纸</span>';
+      changeWallpaperBtn.addEventListener("click", triggerFileUpload);
+      
+      // 将按钮添加到设置菜单中
+      // 找到恢复默认背景按钮，在它后面添加
+      if (DOM.resetBgBtn && DOM.resetBgBtn.nextSibling) {
+        DOM.settingsMenu.insertBefore(changeWallpaperBtn, DOM.resetBgBtn.nextSibling);
+      } else {
+        DOM.settingsMenu.appendChild(changeWallpaperBtn);
+      }
+    }
+  }
 }
 
 // 搜索历史功能
@@ -196,38 +273,255 @@ function updateSearchHistoryUI() {
   }
 }
 
-// 收藏功能
+// 初始化收藏功能
 function initFavoritesFunctionality() {
-  // 从本地存储加载收藏
-  loadFavorites();
-
-  // 确保添加收藏按钮始终可见
-  DOM.addFavoriteBtn.classList.remove("opacity-0");
-  DOM.addFavoriteBtn.classList.add("opacity-100");
-
-  // 添加收藏按钮
-  DOM.addFavoriteBtn.addEventListener("click", () => {
-    // 清空输入框
-    DOM.favoriteNameInput.value = "";
-    DOM.favoriteUrlInput.value = "";
-    // 重置选中的图标
-    resetIconSelection();
+  // 确保DOM元素存在
+  if (!DOM.addFavoriteBtn || !DOM.addFavoriteDialog || !DOM.dialogOverlay || !DOM.cancelAddFavorite || !DOM.confirmAddFavorite || !DOM.favoritesBar) {
+    return;
+  }
+  
+  // 加载已保存的收藏
+  loadFavoritesFromStorage();
+  
+  // 绑定添加收藏按钮点击事件
+  DOM.addFavoriteBtn.addEventListener('click', function() {
+    // 确保输入框存在
+    if (DOM.favoriteName && DOM.favoriteUrl) {
+      DOM.favoriteName.value = '';
+      DOM.favoriteUrl.value = '';
+      DOM.favoriteName.focus();
+    }
+    
+    // 重置图标预览
+    if (DOM.previewImg) {
+      DOM.previewImg.src = '';
+    }
+    
     // 显示对话框
-    DOM.addFavoriteDialog.classList.remove("hidden");
-    DOM.dialogOverlay.classList.remove("hidden");
-    // 聚焦到名称输入框
-    DOM.favoriteNameInput.focus();
+    if (DOM.dialogOverlay && DOM.addFavoriteDialog) {
+      DOM.dialogOverlay.classList.remove('hidden');
+      DOM.addFavoriteDialog.classList.remove('hidden');
+    }
   });
+  
+  // 绑定取消按钮点击事件
+  DOM.cancelAddFavorite.addEventListener('click', closeAddFavoriteDialog);
+  
+  // 绑定确认按钮点击事件
+  DOM.confirmAddFavorite.addEventListener('click', handleAddFavorite);
+  
+  // 绑定遮罩层点击事件
+  DOM.dialogOverlay.addEventListener('click', function(e) {
+    if (e.target === DOM.dialogOverlay) {
+      closeAddFavoriteDialog();
+    }
+  });
+  
+  // 绑定上传图标事件
+  if (DOM.favoriteIconUpload) {
+    DOM.favoriteIconUpload.addEventListener('click', function() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.click();
+      
+      input.addEventListener('change', function(e) {
+        if (e.target.files && e.target.files[0]) {
+          handleIconUpload(e.target.files[0]);
+        }
+      });
+    });
+  }
+  
+  // 添加ESC键关闭对话框
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && !DOM.dialogOverlay.classList.contains('hidden')) {
+      closeAddFavoriteDialog();
+    }
+  });
+  
+  // 渲染收藏列表
+  renderFavorites();
+}
 
-  // 取消添加收藏
-  DOM.cancelAddFavoriteBtn.addEventListener("click", hideAddFavoriteDialog);
-  DOM.dialogOverlay.addEventListener("click", hideAddFavoriteDialog);
+// 从本地存储加载收藏
+function loadFavoritesFromStorage() {
+  try {
+    const storedFavorites = localStorage.getItem('favorites');
+    if (storedFavorites) {
+      favorites = JSON.parse(storedFavorites);
+    } else {
+      favorites = [];
+    }
+  } catch (error) {
+    console.error('加载收藏失败:', error);
+    favorites = [];
+  }
+}
 
-  // 确认添加收藏
-  DOM.confirmAddFavoriteBtn.addEventListener("click", addFavorite);
+// 保存收藏到本地存储
+function saveFavoritesToStorage() {
+  try {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    return true;
+  } catch (error) {
+    console.error('保存收藏失败:', error);
+    return false;
+  }
+}
 
-  // 初始化图标上传功能
-  initIconUpload();
+// 处理添加收藏
+function handleAddFavorite() {
+  if (!DOM.favoriteName || !DOM.favoriteUrl) return;
+  
+  const name = DOM.favoriteName.value.trim();
+  const url = DOM.favoriteUrl.value.trim();
+  
+  if (!name || !url) {
+    alert('请输入网站名称和网址');
+    return;
+  }
+  
+  // 验证URL格式
+  let validUrl = url;
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    validUrl = 'https://' + url;
+  }
+  
+  try {
+    new URL(validUrl);
+  } catch (error) {
+    alert('请输入有效的网址');
+    return;
+  }
+  
+  // 生成图标URL（使用favicon或自定义上传的图标）
+  let iconUrl = getFaviconUrl(validUrl);
+  
+  // 检查是否有自定义上传的图标
+  if (DOM.iconPreview && DOM.previewImg && DOM.previewImg.src && DOM.previewImg.src !== window.location.href) {
+    iconUrl = DOM.previewImg.src;
+  }
+  
+  // 创建新的收藏项
+  const newFavorite = {
+    id: Date.now().toString(),
+    name: name,
+    url: validUrl,
+    icon: iconUrl,
+    createdAt: new Date().toISOString()
+  };
+  
+  // 添加到收藏列表
+  favorites.push(newFavorite);
+  
+  // 保存到本地存储
+  if (saveFavoritesToStorage()) {
+    // 更新UI
+    renderFavorites();
+    
+    // 关闭对话框并重置表单
+    closeAddFavoriteDialog();
+    
+    // 显示成功提示
+    showNotification('收藏添加成功');
+  } else {
+    alert('保存收藏失败，请稍后再试');
+  }
+}
+
+// 处理图标上传
+function handleIconUpload(file) {
+  // 检查文件类型
+  if (!file.type.startsWith('image/')) {
+    alert('请上传图片文件');
+    return;
+  }
+  
+  // 检查文件大小（限制为2MB）
+  if (file.size > 2 * 1024 * 1024) {
+    alert('图片文件大小不能超过2MB');
+    return;
+  }
+  
+  // 创建文件读取器
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    if (DOM.previewImg && DOM.iconPreview) {
+      DOM.previewImg.src = e.target.result;
+      DOM.iconPreview.classList.remove('hidden');
+      // 隐藏上传提示文本
+      const uploadText = DOM.uploadArea.querySelector('.upload-text');
+      if (uploadText) {
+        uploadText.classList.add('hidden');
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// 获取网站图标URL
+function getFaviconUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    return `${urlObj.protocol}//${urlObj.hostname}/favicon.ico`;
+  } catch (error) {
+    console.error('获取favicon失败:', error);
+    return 'src/png/home.png';
+  }
+}
+
+// 关闭添加收藏对话框
+function closeAddFavoriteDialog() {
+  if (DOM.addFavoriteDialog) {
+    DOM.addFavoriteDialog.classList.add('hidden');
+  }
+  if (DOM.dialogOverlay) {
+    DOM.dialogOverlay.classList.add('hidden');
+  }
+  
+  // 重置表单
+  if (DOM.favoriteName) {
+    DOM.favoriteName.value = '';
+  }
+  if (DOM.favoriteUrl) {
+    DOM.favoriteUrl.value = '';
+  }
+  if (DOM.uploadIcon) {
+    DOM.uploadIcon.value = '';
+  }
+  if (DOM.previewImg && DOM.iconPreview) {
+    DOM.previewImg.src = '';
+    DOM.iconPreview.classList.add('hidden');
+    // 显示上传提示文本
+    const uploadText = document.querySelector('.upload-text');
+    if (uploadText) {
+      uploadText.classList.remove('hidden');
+    }
+  }
+}
+
+// 显示通知
+function showNotification(message) {
+  // 检查是否已有通知元素，如果没有则创建
+  let notification = document.getElementById('notification');
+  if (!notification) {
+    notification = document.createElement('div');
+    notification.id = 'notification';
+    notification.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-dark/90 text-white px-4 py-2 rounded-lg shadow-lg z-50 opacity-0 transition-opacity duration-300';
+    document.body.appendChild(notification);
+  }
+  
+  // 设置消息并显示
+  notification.textContent = message;
+  notification.classList.remove('opacity-0');
+  notification.classList.add('opacity-100');
+  
+  // 3秒后自动隐藏
+  setTimeout(() => {
+    notification.classList.remove('opacity-100');
+    notification.classList.add('opacity-0');
+  }, 3000);
 }
 
 function hideAddFavoriteDialog() {
@@ -720,29 +1014,68 @@ function setFavorites(list) {
   );
 }
 
-// 渲染收藏栏
-// 只展示收藏（后台维护 favorites.json）
+// 渲染收藏列表
 function renderFavorites() {
-  fetch("src/data/favorites.json")
-    .then((res) => res.json())
-    .then((favorites) => {
-      const favoritesBar = document.getElementById("favoritesBar");
-      favoritesBar.innerHTML = "";
-      favorites.forEach((fav) => {
-        const item = document.createElement("a");
-        item.href = fav.url;
-        item.target = "_blank";
-        item.className =
-          "flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-primary/20 transition-colors";
-        item.innerHTML = `
-          <img src="${
-            fav.icon || "src/png/home.png"
-          }" alt="icon" class="w-6 h-6 rounded object-cover border border-white/20" />
-          <span class="text-white text-sm">${fav.name}</span>
-        `;
-        favoritesBar.appendChild(item);
-      });
+  if (!DOM.favoritesBar) return;
+  
+  // 清空现有收藏
+  DOM.favoritesBar.innerHTML = '';
+  
+  // 按创建时间排序（最新的在前）
+  favorites.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  
+  // 创建并添加收藏项
+  favorites.forEach(favorite => {
+    const favoriteItem = document.createElement('div');
+    favoriteItem.className = 'flex flex-col items-center justify-center group';
+    favoriteItem.setAttribute('data-id', favorite.id);
+    
+    // 创建图标容器
+    const iconContainer = document.createElement('div');
+    iconContainer.className = 'w-12 h-12 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center mb-1 transition-all duration-300 group-hover:bg-white/20 overflow-hidden';
+    
+    // 创建图标
+    const icon = document.createElement('img');
+    icon.src = favorite.icon;
+    icon.alt = favorite.name;
+    icon.className = 'w-8 h-8 object-contain';
+    
+    // 创建名称标签
+    const nameTag = document.createElement('span');
+    nameTag.className = 'text-xs text-white/80 max-w-[80px] truncate text-center';
+    nameTag.textContent = favorite.name;
+    
+    // 组装元素
+    iconContainer.appendChild(icon);
+    favoriteItem.appendChild(iconContainer);
+    favoriteItem.appendChild(nameTag);
+    
+    // 添加点击事件
+    favoriteItem.addEventListener('click', () => {
+      window.open(favorite.url, '_blank');
     });
+    
+    // 添加右键菜单支持
+    favoriteItem.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (confirm(`确定要删除收藏"${favorite.name}"吗？`)) {
+        // 从列表中移除
+        favorites = favorites.filter(item => item.id !== favorite.id);
+        
+        // 保存到本地存储
+        saveFavoritesToStorage();
+        
+        // 重新渲染
+        renderFavorites();
+        
+        // 显示删除成功提示
+        showNotification('收藏已删除');
+      }
+    });
+    
+    // 添加到收藏栏
+    DOM.favoritesBar.appendChild(favoriteItem);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", renderFavorites);
