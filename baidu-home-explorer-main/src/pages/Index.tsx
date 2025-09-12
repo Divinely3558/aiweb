@@ -3,7 +3,7 @@ import { SearchLogo } from "@/components/SearchLogo";
 import { SearchBox } from "@/components/SearchBox";
 import { TrendingTopics } from "@/components/TrendingTopics";
 
-const Index = () => {
+export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -30,5 +30,3 @@ const Index = () => {
     </div>
   );
 };
-
-export default Index;
