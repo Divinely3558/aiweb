@@ -57,8 +57,8 @@
     >
       <img
         id="background-image"
-        src="https://picsum.photos/id/1002/1920/1080"
-        alt="默认背景图"
+        src=""
+        alt="Bing每日壁纸"
         class="w-full h-full object-cover opacity-40 dark:opacity-20"
       />
       <div
@@ -75,7 +75,7 @@
         >
           <div class="flex items-center gap-2">
             <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-primary">
-                <img src="src/img/home-icon.svg" alt="首页" class="mr-2 w-10 h-10">jason
+                <img src="src/img/home-icon.svg" alt="首页" class="mr-2 w-20 h-20">jason
               </h1>
             <!-- 极简模式已移除 -->
           </div>
@@ -94,14 +94,6 @@
                 src="src/img/chevron-down-icon.svg" alt="下拉箭头" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none w-4 h-4"
               >
             </div>
-
-            <!-- 背景设置按钮 -->
-            <button
-              id="bg-settings-btn"
-              class="p-2 bg-white/80 dark:bg-dark-600/80 backdrop-blur rounded-lg hover:bg-white dark:hover:bg-dark-500 transition-all-custom"
-            >
-              <img src="src/img/image-icon.svg" alt="背景设置" class="w-5 h-5 text-gray-600 dark:text-gray-300"/>
-            </button>
 
             <!-- 主题切换按钮 -->
             <button
@@ -149,103 +141,6 @@
     </footer>
 
 
-
-    <!-- 模态框：背景设置 -->
-    <div
-      id="bg-modal"
-      class="fixed inset-0 z-50 flex items-center justify-center hidden"
-    >
-      <div
-        class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        id="bg-modal-overlay"
-      ></div>
-      <div
-        class="relative bg-white dark:bg-dark-600 rounded-2xl shadow-xl w-full max-w-md p-6 transform transition-all-custom"
-      >
-        <button
-          id="close-bg-modal"
-          class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-        >
-          <img src="src/img/times-icon.svg" alt="关闭" class="w-5 h-5">
-        </button>
-
-        <h3 class="text-xl font-bold mb-4">背景设置</h3>
-
-        <div class="space-y-4">
-          <div>
-            <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >默认背景</label
-            >
-            <div class="grid grid-cols-3 gap-2">
-              <div
-                class="bg-gray-200 dark:bg-dark-500 rounded-lg overflow-hidden cursor-pointer bg-option"
-                data-bg="https://picsum.photos/id/1002/1920/1080"
-              >
-                <img
-                  src="https://picsum.photos/id/1002/300/200"
-                  alt="背景选项1"
-                  class="w-full h-20 object-cover"
-                />
-              </div>
-              <div
-                class="bg-gray-200 dark:bg-dark-500 rounded-lg overflow-hidden cursor-pointer bg-option"
-                data-bg="https://picsum.photos/id/1015/1920/1080"
-              >
-                <img
-                  src="https://picsum.photos/id/1015/300/200"
-                  alt="背景选项2"
-                  class="w-full h-20 object-cover"
-                />
-              </div>
-              <div
-                class="bg-gray-200 dark:bg-dark-500 rounded-lg overflow-hidden cursor-pointer bg-option"
-                data-bg="https://picsum.photos/id/1018/1920/1080"
-              >
-                <img
-                  src="https://picsum.photos/id/1018/300/200"
-                  alt="背景选项3"
-                  class="w-full h-20 object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label
-              for="bg-upload"
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >上传本地图片</label
-            >
-            <div
-              class="border-2 border-dashed border-gray-300 dark:border-dark-400 rounded-lg p-4 text-center hover:bg-gray-50 dark:hover:bg-dark-500 transition-all-custom"
-            >
-              <input
-                type="file"
-                id="bg-upload"
-                accept="image/*"
-                class="hidden"
-              />
-              <label for="bg-upload" class="cursor-pointer">
-                <img src="src/img/upload-icon.svg" alt="上传" class="w-10 h-10 text-gray-400 mb-2 inline-block">
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  点击或拖拽图片到此处上传
-                </p>
-              </label>
-            </div>
-          </div>
-
-          <div class="pt-2">
-            <button
-              id="reset-bg"
-              class="w-full py-2 px-4 border border-gray-300 dark:border-dark-400 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-500 transition-all-custom"
-            >
-              恢复默认背景
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- 确认对话框 -->
     <div

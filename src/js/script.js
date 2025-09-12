@@ -6,22 +6,22 @@ const AppData = {
 
   loadData() {
     // 从localStorage加载数据
-    const savedData = localStorage.getItem('appData');
+    const savedData = localStorage.getItem("appData");
     if (savedData) {
       const data = JSON.parse(savedData);
       this.settings = data.settings || {
         theme: "light",
-        background: "https://picsum.photos/id/1002/1920/1080",
         searchEngine: "baidu",
         lastUpdated: new Date().toISOString().split("T")[0],
+        background: "",
       };
     } else {
       // 默认数据
       this.settings = {
         theme: "light",
-        background: "https://picsum.photos/id/1002/1920/1080",
         searchEngine: "baidu",
         lastUpdated: new Date().toISOString().split("T")[0],
+        background: "",
       };
     }
   },
@@ -29,9 +29,9 @@ const AppData = {
   saveData() {
     // 保存数据到localStorage
     const data = {
-      settings: this.settings
+      settings: this.settings,
     };
-    localStorage.setItem('appData', JSON.stringify(data));
+    localStorage.setItem("appData", JSON.stringify(data));
   },
 
   // 设置相关方法
@@ -44,10 +44,6 @@ const AppData = {
     this.saveData();
   },
 
-
-
-
-
   // 更新最后修改时间
   updateLastUpdated() {
     this.settings.lastUpdated = new Date().toISOString().split("T")[0];
@@ -55,19 +51,19 @@ const AppData = {
   },
 };
 // 视图控制器
-  const ViewController = {
-    // 初始化视图
-    init() {
-      this.renderTheme();
-      this.renderBackground();
-      this.renderSearchEngine();
-      this.updateLastUpdated();
+const ViewController = {
+  // 初始化视图
+  init() {
+    this.renderTheme();
+    this.renderSearchEngine();
+    this.updateLastUpdated();
 
-      // 绑定事件监听
-      this.bindEvents();
-    },
+    // 获取并设置Bing每日壁纸
+    this.getBingDailyWallpaper();
 
-
+    // 绑定事件监听
+    this.bindEvents();
+  },
 
   // 渲染主题
   renderTheme() {
@@ -79,14 +75,6 @@ const AppData = {
     }
   },
 
-  // 渲染背景
-  renderBackground() {
-    const settings = AppData.getSettings();
-    const bgImage = document.getElementById("background-image");
-    bgImage.src =
-      settings.background || "https://picsum.photos/id/1002/1920/1080";
-  },
-
   // 渲染搜索引擎
   renderSearchEngine() {
     const settings = AppData.getSettings();
@@ -94,11 +82,7 @@ const AppData = {
     searchEngine.value = settings.searchEngine || "baidu";
   },
 
-
-
   // 收藏功能已替换为历史记录功能，renderBookmarks方法已移除
-
-
 
   // 更新最后修改时间显示
   updateLastUpdated() {
@@ -108,35 +92,6 @@ const AppData = {
   },
 
   // 收藏功能已替换为历史记录功能，openBookmarkModal和closeBookmarkModal方法已移除
-
-  // 打开背景设置模态框
-  openBgModal() {
-    const modal = document.getElementById("bg-modal");
-
-    // 显示模态框
-    modal.classList.remove("hidden");
-    setTimeout(() => {
-      modal
-        .querySelector('div[class*="rounded-2xl"]')
-        .classList.add("scale-100");
-      modal
-        .querySelector('div[class*="rounded-2xl"]')
-        .classList.remove("scale-95");
-    }, 10);
-  },
-
-  // 关闭背景设置模态框
-  closeBgModal() {
-    const modal = document.getElementById("bg-modal");
-    const modalContent = modal.querySelector('div[class*="rounded-2xl"]');
-
-    modalContent.classList.remove("scale-100");
-    modalContent.classList.add("scale-95");
-
-    setTimeout(() => {
-      modal.classList.add("hidden");
-    }, 300);
-  },
 
   // 打开确认对话框
   openConfirmDialog(title, message, confirmCallback) {
@@ -183,9 +138,7 @@ const AppData = {
   // 关闭确认对话框
   closeConfirmDialog() {
     const dialog = document.getElementById("confirm-dialog");
-    const dialogContent = dialog.querySelector(
-      'div[class*="rounded-2xl"]'
-    );
+    const dialogContent = dialog.querySelector('div[class*="rounded-2xl"]');
 
     dialogContent.classList.remove("scale-100");
     dialogContent.classList.add("scale-95");
@@ -195,14 +148,44 @@ const AppData = {
     }, 300);
   },
 
+  // 渲染背景图片
+  renderBackground() {
+    const settings = AppData.getSettings();
+    const bgImage = document.getElementById("background-image");
+    if (settings.background) {
+      bgImage.src = settings.background;
+    }
+  },
+
+  // 获取Bing每日壁纸
+  getBingDailyWallpaper() {
+    // 使用Bing每日壁纸API
+    const apiUrl =
+      "https://bing.biturl.top/?resolution=1920&format=json&index=0&mkt=zh-CN";
+
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.url) {
+          // 更新背景图片
+          AppData.saveSettings({ background: data.url });
+          this.renderBackground();
+        }
+      })
+      .catch((error) => {
+        console.error("获取Bing每日壁纸失败:", error);
+        // 如果获取失败，使用默认图片
+        const defaultImage = "https://source.unsplash.com/random/1920x1080";
+        AppData.saveSettings({ background: defaultImage });
+        this.renderBackground();
+      });
+  },
+
   // 显示通知
   showNotification(title, message, type = "success") {
     const notification = document.getElementById("notification");
-    const notificationTitle = 
-      document.getElementById("notification-title");
-    const notificationMessage = document.getElementById(
-      "notification-message"
-    );
+    const notificationTitle = document.getElementById("notification-title");
+    const notificationMessage = document.getElementById("notification-message");
     const notificationIcon = document.getElementById("notification-icon");
     const closeBtn = document.getElementById("close-notification");
 
@@ -258,140 +241,59 @@ const AppData = {
 
   // 绑定事件
   bindEvents() {
+    // h1点击跳转到百度
+    document.querySelector("h1").addEventListener("click", () => {
+      window.location.href = "/BookWEB";
+    });
+
     // 搜索表单提交
-    document
-      .getElementById("search-form")
-      .addEventListener("submit", (e) => {
-        e.preventDefault();
-        const searchInput = document.getElementById("search-input");
-        const query = searchInput.value.trim();
+    document.getElementById("search-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const searchInput = document.getElementById("search-input");
+      const query = searchInput.value.trim();
 
-        if (query) {
-          // 根据选择的搜索引擎进行搜索
-          const searchEngine =
-            document.getElementById("search-engine").value;
-          let searchUrl = "";
+      if (query) {
+        // 根据选择的搜索引擎进行搜索
+        const searchEngine = document.getElementById("search-engine").value;
+        let searchUrl = "";
 
-          if (searchEngine === "baidu") {
-            searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(
-              query
-            )}`;
-          } else if (searchEngine === "bing") {
-            searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(
-              query
-            )}`;
-          }
-
-          // 打开搜索页面
-          window.open(searchUrl, "_blank");
-
-          // 清空搜索框
-          searchInput.value = "";
+        if (searchEngine === "baidu") {
+          searchUrl = `https://www.baidu.com/s?wd=${encodeURIComponent(query)}`;
+        } else if (searchEngine === "bing") {
+          searchUrl = `https://www.bing.com/search?q=${encodeURIComponent(
+            query
+          )}`;
         }
-      });
 
+        // 打开搜索页面
+        window.open(searchUrl, "_blank");
 
+        // 清空搜索框
+        searchInput.value = "";
+      }
+    });
 
     // 搜索引擎切换
-    document
-      .getElementById("search-engine")
-      .addEventListener("change", (e) => {
-        AppData.saveSettings({ searchEngine: e.target.value });
-      });
+    document.getElementById("search-engine").addEventListener("change", (e) => {
+      AppData.saveSettings({ searchEngine: e.target.value });
+    });
 
     // 移除了收藏相关的事件监听，因为收藏功能已替换为历史记录功能
 
-    // 打开背景设置
-    document
-      .getElementById("bg-settings-btn")
-      .addEventListener("click", () => {
-        this.openBgModal();
-      });
-
-    // 关闭背景设置
-    document
-      .getElementById("close-bg-modal")
-      .addEventListener("click", () => {
-        this.closeBgModal();
-      });
-
-    // 点击背景模态框背景关闭
-    document
-      .getElementById("bg-modal-overlay")
-      .addEventListener("click", () => {
-        this.closeBgModal();
-      });
-
-    // 选择默认背景
-    document.querySelectorAll(".bg-option").forEach((option) => {
-      option.addEventListener("click", () => {
-        const bgUrl = option.getAttribute("data-bg");
-        AppData.saveSettings({ background: bgUrl });
-        this.renderBackground();
-        this.closeBgModal();
-        this.showNotification(
-          "背景已更新",
-          "已应用新的背景图片",
-          "success"
-        );
-      });
-    });
-
-    // 上传背景图片
-    document
-      .getElementById("bg-upload")
-      .addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (event) => {
-            AppData.saveSettings({ background: event.target.result });
-            this.renderBackground();
-            this.closeBgModal();
-            this.showNotification(
-              "背景已更新",
-              "已应用上传的背景图片",
-              "success"
-            );
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-
-    // 恢复默认背景
-    document.getElementById("reset-bg").addEventListener("click", () => {
-      AppData.saveSettings({
-        background: "https://picsum.photos/id/1002/1920/1080",
-      });
-      this.renderBackground();
-      this.closeBgModal();
+    // 主题切换
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+      const settings = AppData.getSettings();
+      const newTheme = settings.theme === "dark" ? "light" : "dark";
+      AppData.saveSettings({ theme: newTheme });
+      this.renderTheme();
       this.showNotification(
-        "背景已重置",
-        "已恢复默认背景图片",
+        "主题已切换",
+        `已切换到${newTheme === "dark" ? "深色" : "浅色"}模式`,
         "success"
       );
     });
 
-    // 主题切换
-    document
-      .getElementById("theme-toggle")
-      .addEventListener("click", () => {
-        const settings = AppData.getSettings();
-        const newTheme = settings.theme === "dark" ? "light" : "dark";
-        AppData.saveSettings({ theme: newTheme });
-        this.renderTheme();
-        this.showNotification(
-          "主题已切换",
-          `已切换到${newTheme === "dark" ? "深色" : "浅色"}模式`,
-          "success"
-        );
-      });
-
-
-
     // 移除了批量操作相关的事件监听，因为收藏功能已替换为历史记录功能
-
-
   },
 };
 
