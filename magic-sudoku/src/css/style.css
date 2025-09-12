@@ -4,13 +4,17 @@
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   }
   .text-shadow-gold {
+    color: #2563eb; /* 用户输入数字的颜色 - 蓝色 */
     text-shadow: 0 0 5px rgba(212, 175, 55, 0.7);
+  }
+  .text-darkMagic {
+    color: #4b5563; /* 初始数字的颜色 - 深灰色 */
   }
   .border-thick {
     border-width: 2px;
   }
   .parchment-bg {
-    background-image: url('../img/background.jpg');
+    background-image: url("../img/background.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -28,7 +32,7 @@
     z-index: -1;
   }
   .magic-border {
-    border-image: linear-gradient(45deg, #D4AF37, #F0E68C, #D4AF37) 1;
+    border-image: linear-gradient(45deg, #d4af37, #f0e68c, #d4af37) 1;
   }
   .cell-hover {
     transition: all 0.2s ease;
@@ -41,17 +45,31 @@
     animation: bounce-in 0.5s ease forwards;
   }
   @keyframes bounce-in {
-    0% { transform: scale(0.8); opacity: 0; }
-    70% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    70% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
   .pulse {
     animation: pulse 2s infinite;
   }
   @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
   .color-transition {
     transition: color 0.5s ease;
@@ -60,7 +78,11 @@
     animation: celebrate 1s ease-in-out infinite alternate;
   }
   @keyframes celebrate {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-10px); }
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-10px);
+    }
   }
 }
