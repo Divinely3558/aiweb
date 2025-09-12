@@ -1,0 +1,70 @@
+{
+  "trending_topics": [
+    {
+      "rank": 1,
+      "title": "AI Technology Breakthrough",
+      "isHot": true,
+      "isNew": false,
+      "category": "technology",
+      "timestamp": "2024-12-09T10:00:00Z"
+    },
+    {
+      "rank": 2,
+      "title": "Climate Change Summit 2024",
+      "isHot": false,
+      "isNew": true,
+      "category": "environment",
+      "timestamp": "2024-12-09T09:30:00Z"
+    },
+    {
+      "rank": 3,
+      "title": "Space Exploration Updates",
+      "isHot": false,
+      "isNew": false,
+      "category": "science",
+      "timestamp": "2024-12-09T08:15:00Z"
+    },
+    {
+      "rank": 4,
+      "title": "Economic Market Analysis",
+      "isHot": false,
+      "isNew": false,
+      "category": "finance",
+      "timestamp": "2024-12-09T07:45:00Z"
+    },
+    {
+      "rank": 5,
+      "title": "Digital Currency Trends",
+      "isHot": true,
+      "isNew": false,
+      "category": "finance",
+      "timestamp": "2024-12-09T07:00:00Z"
+    },
+    {
+      "rank": 6,
+      "title": "Renewable Energy Progress",
+      "isHot": false,
+      "isNew": true,
+      "category": "environment",
+      "timestamp": "2024-12-09T06:30:00Z"
+    },
+    {
+      "rank": 7,
+      "title": "Medical Research News",
+      "isHot": false,
+      "isNew": false,
+      "category": "health",
+      "timestamp": "2024-12-09T06:00:00Z"
+    },
+    {
+      "rank": 8,
+      "title": "Technology Innovation",
+      "isHot": false,
+      "isNew": false,
+      "category": "technology",
+      "timestamp": "2024-12-09T05:30:00Z"
+    }
+  ],
+  "last_updated": "2024-12-09T10:00:00Z",
+  "source": "trending_api_v1"
+}

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baidu Search - Find Anything</title>
+    <meta name="description" content="Beautiful, fast search engine inspired by modern design. Search anything with our clean interface." />
+    <meta name="author" content="Search Engine" />
+
+    <meta property="og:title" content="Baidu Search - Find Anything" />
+    <meta property="og:description" content="Beautiful, fast search engine inspired by modern design. Search anything with our clean interface." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link rel="stylesheet" href="src/css/components.css">
+</head>
+<body>
+    <div class="min-h-screen bg-background">
+        <!-- Navigation -->
+        <nav class="w-full">
+            <div class="nav-container">
+                <div class="nav-links">
+                    <a href="#" class="nav-link">News</a>
+                    <a href="#" class="nav-link">Images</a>
+                    <a href="#" class="nav-link">Videos</a>
+                    <a href="#" class="nav-link">Maps</a>
+                    <a href="#" class="nav-link">Translate</a>
+                    <a href="#" class="nav-link">Scholar</a>
+                </div>
+                
+                <div class="nav-actions">
+                    <button class="btn btn-ghost">Settings</button>
+                    <button class="btn btn-primary">Sign In</button>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- Logo and Search -->
+                <div class="search-section">
+                    <!-- Logo -->
+                    <div class="logo-container">
+                        <div class="logo">
+                            <span class="logo-text logo-red">Bai</span>
+                            <span class="logo-text logo-blue">du</span>
+                            <div class="logo-icon">
+                                <div class="logo-circle">
+                                    <div class="logo-dots">
+                                        <div class="dot dot-1"></div>
+                                        <div class="dot dot-2"></div>
+                                        <div class="dot dot-3"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Box -->
+                    <div class="search-container">
+                        <form class="search-form" id="searchForm">
+                            <div class="search-box">
+                                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                                <input type="text" class="search-input" placeholder="Search anything..." id="searchInput">
+                                <div class="search-actions">
+                                    <button type="button" class="action-btn" title="Voice search">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                            <line x1="12" x2="12" y1="19" y2="22"></line>
+                                            <line x1="8" x2="16" y1="22" y2="22"></line>
+                                        </svg>
+                                    </button>
+                                    <button type="button" class="action-btn" title="Search by image">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+                                            <circle cx="12" cy="13" r="3"></circle>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="search-buttons">
+                                <button type="submit" class="btn btn-search">Search</button>
+                                <button type="button" class="btn btn-secondary">I'm Feeling Lucky</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Trending Topics -->
+                <div class="trending-container">
+                    <div class="trending-header">
+                        <svg class="trending-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                        <h2 class="trending-title">Trending Now</h2>
+                    </div>
+                    
+                    <div class="trending-grid" id="trendingGrid">
+                        <!-- Trending topics will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 Search Engine. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Toast notification -->
+    <div id="toast" class="toast hidden">
+        <div class="toast-content">
+            <div class="toast-title" id="toastTitle"></div>
+            <div class="toast-description" id="toastDescription"></div>
+        </div>
+    </div>
+    
+    <script src="src/js/data.js"></script>
+    <script src="src/js/components.js"></script>
+    <script src="src/js/main.js"></script>
+</body>
+</html>
